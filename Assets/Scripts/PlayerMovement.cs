@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Rigidbody 2Dがないと動かないようにしている、外そうとすると警告もしてくれる
+// Rigidbody 2D と PlayerStatus がないと動かないように指定
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(PlayerStatus))]
 public class PlayerMovement : MonoBehaviour
 {
     // []で囲まれたものはエディタへの指示・タグ付けの役割
@@ -16,9 +17,7 @@ public class PlayerMovement : MonoBehaviour
 
     // Inspector上で見出しを作る
     [Header("移動設定")]
-    // カーソルを乗せたときに説明文をポップアップするもの
     [Tooltip("通常時の移動速度")]
-    // 移動速度を設定、SerializeFieldはInspectorで表示して編集できるようにするもの
     [SerializeField] private float walkSpeed = 4.0f;
 
     [Tooltip("ダッシュ時の移動速度")]
@@ -30,6 +29,9 @@ public class PlayerMovement : MonoBehaviour
     // 物理演算コンポーネントの参照を入れる箱
     private Rigidbody2D rb;
 
+    // ★追加：ステータス管理コンポーネント（PlayerStatus）の参照を入れる箱
+    private PlayerStatus status;
+
     // キー入力の方向（X, Y）を一時保存する2次元ベクトル
     private Vector2 moveInput;
 
@@ -37,9 +39,11 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        // ★追加：同じPlayerオブジェクトに付いている PlayerStatus を取得する
+        status = GetComponent<PlayerStatus>();
     }
 
-    // オブジェクトが有効になった時にInputActionを有効化する（これがないとキーが反応しない場合がある）
+    // オブジェクトが有効になった時にInputActionを有効化する
     private void OnEnable()
     {
         moveUp.action.Enable();
@@ -77,7 +81,18 @@ public class PlayerMovement : MonoBehaviour
         // 2. XとYの入力を2次元ベクトルにまとめ、長さを1に揃える（正規化：normalized）
         moveInput = new Vector2(moveX, moveY).normalized;
 
-        isDashing = moveDash.action.IsPressed();
+        // 3. 移動入力があり（moveInput != Vector2.zero）、かつダッシュキーが押されている時だけスタミナを消費する
+        if (moveInput != Vector2.zero && moveDash.action.IsPressed())
+        {
+            // スタミナを消費し、まだ走れるなら true、息切れなら false が返ってくる
+            isDashing = status.TryConsumeStamina();
+        }
+        else
+        {
+            // 立ち止まっている時やダッシュキーを離している時は、ダッシュ解除してスタミナを回復させる
+            isDashing = false;
+            status.RecoverStamina();
+        }
     }
 
     // 一定時間ごとに呼ばれる物理演算用の処理（実際の移動を担当）
