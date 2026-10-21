@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 鶏（プレイヤー）のHPとスタミナを管理する
+/// 鶏（プレイヤー）のHP・スタミナ・所持しているカギの数を管理する
 /// </summary>
 public class PlayerStatus : MonoBehaviour
 {
@@ -25,15 +25,20 @@ public class PlayerStatus : MonoBehaviour
     [Tooltip("通常時に1秒あたり回復するスタミナ量")]
     [SerializeField] private float staminaRecoverPerSecond = 20f;
 
+    [Header("アイテム設定")]
+    [Tooltip("現在持っているカギの数")]
+    [SerializeField] private int keyCount = 0;
+
     // スタミナが一度0になった後、一定量まで回復するまで再ダッシュできなくする息切れフラグ
     private bool isExhausted;
 
-    // 他のスクリプト（UIや進化システムなど）が現在値・最大値を読み取るためのプロパティ(値の変更は外部からはできない)
+    // 他のスクリプト（UIや扉・進化システムなど）が現在値・最大値を読み取るためのプロパティ
     public int MaxHp => maxHp;
     public int CurrentHp => currentHp;
     public float MaxStamina => maxStamina;
     public float CurrentStamina => currentStamina;
     public bool IsExhausted => isExhausted;
+    public int KeyCount => keyCount;
 
     private void Awake()
     {
@@ -51,19 +56,14 @@ public class PlayerStatus : MonoBehaviour
     /// </summary>
     public bool TryConsumeStamina()
     {
-        // 息切れ中なら走れない
         if (isExhausted)
         {
             return false;
         }
 
-        // 1秒あたりの消費量 × 前フレームからの経過秒数（Time.deltaTime）だけ減らす
         currentStamina -= staminaDrainPerSecond * Time.deltaTime;
-
-        // Mathf.Clamp(値, 最小値, 最大値) で、0未満にならないように制限する
         currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
 
-        // スタミナが0に達したら「息切れ」状態にする
         if (currentStamina <= 0f)
         {
             isExhausted = true;
@@ -79,11 +79,8 @@ public class PlayerStatus : MonoBehaviour
     public void RecoverStamina()
     {
         currentStamina += staminaRecoverPerSecond * Time.deltaTime;
-
-        // 最大値（maxStamina）を超えないように制限する
         currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
 
-        // 息切れ状態の場合、最大値の30%まで回復したら息切れを解除する
         if (isExhausted && currentStamina >= maxStamina * 0.3f)
         {
             isExhausted = false;
@@ -91,12 +88,11 @@ public class PlayerStatus : MonoBehaviour
     }
 
     /// <summary>
-    /// 【進化・強化用】最大スタミナを増やす（例：進化時に +50f する）
+    /// 【進化・強化用】最大スタミナを増やす
     /// </summary>
     public void IncreaseMaxStamina(float amount)
     {
         maxStamina += amount;
-        // 最大値が増えた分、現在のスタミナも満タンまで回復させる
         currentStamina = maxStamina;
     }
 
@@ -110,9 +106,6 @@ public class PlayerStatus : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHp -= damage;
-
-        // 重要1：Mathf.Clamp の計算結果（戻り値）を currentHp に代入する！
-        // 重要2：currentHp は int 型なので、0f（float）ではなく 0（int）を渡す！
         currentHp = Mathf.Clamp(currentHp, 0, maxHp);
 
         if (currentHp <= 0)
@@ -122,11 +115,24 @@ public class PlayerStatus : MonoBehaviour
     }
 
     /// <summary>
-    /// 【進化・強化用】最大HPを増やす処理（例：進化やアイテムで最大HPを +1 する）
+    /// 【進化・強化用】最大HPを増やす処理
     /// </summary>
     public void IncreaseMaxHp(int amount)
     {
         maxHp += amount;
         currentHp = maxHp;
+    }
+
+    // =========================================================
+    // 3. カギ（アイテム）管理
+    // =========================================================
+
+    /// <summary>
+    /// マップ上のカギを拾った時に所持数を1増やす
+    /// </summary>
+    public void AddKey()
+    {
+        keyCount++;
+        Debug.Log($"カギを入手！ 現在のカギ所持数: {keyCount}");
     }
 }
