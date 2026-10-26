@@ -29,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
     // 物理演算コンポーネントの参照を入れる箱
     private Rigidbody2D rb;
 
-    // ★追加：ステータス管理コンポーネント（PlayerStatus）の参照を入れる箱
+    // PlayerStatusの参照を入れる箱
     private PlayerStatus status;
 
     // キー入力の方向（X, Y）を一時保存する2次元ベクトル
@@ -39,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        // ★追加：同じPlayerオブジェクトに付いている PlayerStatus を取得する
+        // Playerオブジェクトに付いている PlayerStatus を取得する
         status = GetComponent<PlayerStatus>();
     }
 
@@ -56,7 +56,7 @@ public class PlayerMovement : MonoBehaviour
     // 毎フレーム呼ばれる処理
     private void Update()
     {
-        // 1. キーボード入力を取得
+        // キーボード入力を取得
         float moveX = 0f;
         float moveY = 0f;
 
@@ -78,10 +78,10 @@ public class PlayerMovement : MonoBehaviour
             moveX = -1.0f;
         }
 
-        // 2. XとYの入力を2次元ベクトルにまとめ、長さを1に揃える（正規化：normalized）
+        // XとYの入力を2次元ベクトルにまとめ、長さを1に揃える（正規化：normalized）
         moveInput = new Vector2(moveX, moveY).normalized;
 
-        // 3. 移動入力があり（moveInput != Vector2.zero）、かつダッシュキーが押されている時だけスタミナを消費する
+        // 移動入力があり（moveInput != Vector2.zero）、かつダッシュキーが押されている時だけスタミナを消費する
         if (moveInput != Vector2.zero && moveDash.action.IsPressed())
         {
             // スタミナを消費し、まだ走れるなら true、息切れなら false が返ってくる
