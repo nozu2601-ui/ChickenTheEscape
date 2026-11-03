@@ -14,7 +14,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private InputActionProperty moveRight;
     [SerializeField] private InputActionProperty moveLeft;
     [SerializeField] private InputActionProperty moveDash;
-
+    [Header("画像設定")]
+    [SerializeField] private Sprite frontSprite;
+    [SerializeField] private Sprite backSprite;
+    [SerializeField] private Sprite rightSprite;
+    [SerializeField] private Sprite leftSprite;
     // Inspector上で見出しを作る
     [Header("移動設定")]
     [Tooltip("通常時の移動速度")]
@@ -34,6 +38,8 @@ public class PlayerMovement : MonoBehaviour
 
     // キー入力の方向（X, Y）を一時保存する2次元ベクトル
     private Vector2 moveInput;
+    //画像を取り扱うための変数
+    private SpriteRenderer spriteRenderer;
 
     // ゲーム開始時に一度だけ呼ばれる初期化処理
     private void Awake()
@@ -41,6 +47,8 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         // Playerオブジェクトに付いている PlayerStatus を取得する
         status = GetComponent<PlayerStatus>();
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     // オブジェクトが有効になった時にInputActionを有効化する
@@ -92,6 +100,27 @@ public class PlayerMovement : MonoBehaviour
             // 立ち止まっている時やダッシュキーを離している時は、ダッシュ解除してスタミナを回復させる
             isDashing = false;
             status.RecoverStamina();
+        }
+
+        //イラスト差し替え
+        if (moveInput != Vector2.zero)
+        {
+            if (moveInput.x > 0)
+            {
+                spriteRenderer.sprite = rightSprite;
+            }
+            else if (moveInput.x < 0)
+            {
+                spriteRenderer.sprite = leftSprite;
+            }
+            else if (moveInput.y > 0)
+            {
+                spriteRenderer.sprite = backSprite;
+            }
+            else
+            {
+                spriteRenderer.sprite = frontSprite;
+            }
         }
     }
 
