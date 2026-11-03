@@ -31,6 +31,8 @@ public class PlayerStatus : MonoBehaviour
     [Tooltip("現在持っているカギの数")]
     [SerializeField] private int keyCount = 0;
 
+    [SerializeField] private GameManager gameManager;
+
     // 息切れフラグ
     private bool isExhausted;
 
@@ -137,6 +139,11 @@ public class PlayerStatus : MonoBehaviour
         if (currentHp <= 0)
         {
             Debug.Log("Game Over!");
+            if (gameManager != null)
+            {
+                gameManager.ShowGameOver();
+            }
+
             return;
         }
 
