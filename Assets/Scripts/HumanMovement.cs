@@ -35,6 +35,18 @@ public class HumanMovement : MonoBehaviour
     [Tooltip("鶏にぶつかった時に与えるダメージ量")]
     [SerializeField] private int attackDamage = 1;
 
+    [Header("画像設定")]
+    [SerializeField] private Sprite frontNormal;
+    [SerializeField] private Sprite backNormal;
+    [SerializeField] private Sprite rightNormal;
+    [SerializeField] private Sprite leftNormal;
+    [SerializeField] private Sprite frontAngry;
+    [SerializeField] private Sprite backAngry;
+    [SerializeField] private Sprite rightAngry;
+    [SerializeField] private Sprite leftAngry;
+    //画像を使うための変数
+    private SpriteRenderer spriteRenderer;
+
     // 物理演算とコライダーの参照
     private Rigidbody2D rb;
     private Collider2D humanCollider;
@@ -56,6 +68,7 @@ public class HumanMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         humanCollider = GetComponent<Collider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
@@ -69,8 +82,7 @@ public class HumanMovement : MonoBehaviour
             // ちなみにplayerTransformには，インスペクター上でオブジェクトを代入しているそのまま使える
             // transformも，どのオブジェクトも持つものなのでそのまま使えるようになっている（gameObjectも同様）
             // moveDirectionがVector2なので，zベクトルは自動で切り捨てられる
-            moveDirection = playerTransform.position - transform.position;
-            moveDirection = moveDirection.normalized;
+            Unidirection(playerTransform.position - transform.position);
             currentSpeed = chaseSpeed;
         }
         else
@@ -99,7 +111,7 @@ public class HumanMovement : MonoBehaviour
 
         Transform targetPoint = waypoints[currentPointIndex];
         Vector2 toTarget = targetPoint.position - transform.position;
-        moveDirection = toTarget.normalized;
+        Unidirection(toTarget);
         currentSpeed = patrolSpeed;
 
         //magnitudeはベクトルの長さ
@@ -111,6 +123,36 @@ public class HumanMovement : MonoBehaviour
 
     /// 【視界センサー関数】鶏が「距離」「視野角」「壁の遮蔽なし」の3条件をすべて満たしているか判定する
     /// 鶏が見えていれば true、見えていなければ false
+
+    private void Unidirection(Vector2 toTarget)
+    {
+        if (Mathf.Abs(toTarget.x) > Mathf.Abs(toTarget.y))
+        {
+            if (toTarget.x > 0)
+            {
+                moveDirection = new Vector2(1, 0);
+                spriteRenderer.sprite = isChasing ? rightAngry : rightNormal;
+            }
+            else
+            {
+                moveDirection = new Vector2(-1, 0);
+                spriteRenderer.sprite = isChasing ? leftAngry : leftNormal;
+            }
+        }
+        else
+        {
+            if (toTarget.y > 0)
+            {
+                moveDirection = new Vector2(0, 1);
+                spriteRenderer.sprite = isChasing ? backAngry : backNormal;
+            }
+            else
+            {
+                moveDirection = new Vector2(0, -1);
+                spriteRenderer.sprite = isChasing ? frontAngry : frontNormal;
+            }
+        }
+    }
     private bool CanSeePlayer()
     {
         // 鶏が設定されていなければ見えない
