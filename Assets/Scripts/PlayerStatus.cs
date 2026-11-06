@@ -208,4 +208,10 @@ public class PlayerStatus : MonoBehaviour
         keyCount++;
         Debug.Log($"カギを入手！ 現在のカギ所持数: {keyCount}");
     }
+
+    public void UseKeys(int amount)
+    {
+        keyCount -= amount;
+        Debug.Log($"カギを使用！　現在のカギ所持数:{keyCount}");
+    }
 }

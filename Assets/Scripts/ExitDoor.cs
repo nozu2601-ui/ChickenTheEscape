@@ -6,6 +6,8 @@ public class ExitDoor : MonoBehaviour
     [Header("脱出条件の設定")]
     [Tooltip("この扉を開けて脱出するために必要なカギの数")]
     [SerializeField] private int requiredKeys = 1;
+    [Tooltip("ワープ先の地点")]
+    [SerializeField] private Transform nextStagePoint;
     [SerializeField] private GameManager gameManager;
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -18,19 +20,24 @@ public class ExitDoor : MonoBehaviour
         {
             if (player.KeyCount >= requiredKeys)
             {
-                Debug.Log("脱出成功！ Stage clear!");
-                if (gameManager != null)
+                if (nextStagePoint != null)
                 {
-                    gameManager.ShowClear();
+                    player.UseKeys(requiredKeys);
+                    player.transform.position = nextStagePoint.position;
                 }
-
+                else
+                {
+                    Debug.Log("脱出成功！ Stage clear!");
+                    if (gameManager != null)
+                    {
+                        gameManager.ShowClear();
+                    }
+                }
             }
             else
             {
                 Debug.Log("カギが掛かっている！　カギを探そう。");
             }
         }
-
-
     }
 }

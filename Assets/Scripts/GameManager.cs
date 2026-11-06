@@ -23,6 +23,13 @@ public class GameManager : MonoBehaviour
         //SceneManager.GetActiveScene().name←今アクティブなシーンの名前を取得する
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+    public void BackToTitle()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("TitleScene");
+    }
+
     void Start()
     {
         Time.timeScale = 1f;

@@ -2,7 +2,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
-public class HumanMovement : MonoBehaviour
+public class WolfMovement : MonoBehaviour
 {
     [Header("巡回（パトロール）設定")]
     [Tooltip("順番に巡回する地点（空オブジェクト）のリスト（配列）")]
@@ -91,7 +91,7 @@ public class HumanMovement : MonoBehaviour
             PatrolMove();
         }
 
-        // 動いている時は、その移動方向を「人間が向いている正面（facingDirection）」として記憶しておく
+        // 動いている時は、その移動方向を「狼が向いている正面（facingDirection）」として記憶しておく
         if (moveDirection != Vector2.zero)
         {
             facingDirection = moveDirection;
@@ -161,7 +161,7 @@ public class HumanMovement : MonoBehaviour
             return false;
         }
 
-        // 自分（人間）から見た鶏へのベクトルと、その距離・方向を計算する
+        // 自分（狼）から見た鶏へのベクトルと、その距離・方向を計算する
         Vector2 toPlayer = playerTransform.position - transform.position;
         float distanceToPlayer = toPlayer.magnitude; // 鶏までの距離
         Vector2 dirToPlayer = toPlayer.normalized;   // 鶏への方向（長さ1）
@@ -219,7 +219,7 @@ public class HumanMovement : MonoBehaviour
     }
 
     // =========================================================
-    // Scene画面上で人間の「扇形の視界センサー」を目で見えるように描画する処理
+    // Scene画面上で狼の「扇形の視界センサー」を目で見えるように描画する処理
     // =========================================================
     private void OnDrawGizmos()
     {
